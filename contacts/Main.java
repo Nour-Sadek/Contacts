@@ -1,12 +1,25 @@
 package contacts;
 
 import java.util.Scanner;
+import java.io.*;
+import java.util.Set;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static final ContactStaticFactory contactStaticFactory = new ContactStaticFactory();
 
     public static void main(String[] args) {
+        String fileName = "phonebook.db";
+
+        try {
+            Set<Contact> contacts = (Set<Contact>) SerializationUtils.deserialize(fileName);
+            Contact.setContacts(contacts);
+            System.out.println("open " + fileName + "\n");
+        } catch (IOException | ClassNotFoundException e) {
+            String message = e.getMessage();
+            System.out.println(message);
+        }
+
         while (true) {
             System.out.println("Enter action (add, remove, edit, count, info, exit):");
             String userInput = scanner.nextLine();
@@ -32,6 +45,13 @@ public class Main {
             }
 
             System.out.println();
+        }
+
+        try {
+            SerializationUtils.serialize(Contact.getContacts(), fileName);
+        } catch (IOException e) {
+            String message = e.getMessage();
+            System.out.println(message);
         }
     }
 
