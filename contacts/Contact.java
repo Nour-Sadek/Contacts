@@ -1,5 +1,6 @@
 package contacts;
 
+import java.io.*;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Iterator;
@@ -8,14 +9,14 @@ import java.util.regex.Matcher;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-class Contact {
+class Contact implements Serializable {
     protected String name;
     protected String number;
     protected LocalDateTime timeAdded;
     protected LocalDateTime timeEdited;
     protected static final LocalDate today;
 
-    private static final Set<Contact> contacts = new LinkedHashSet<Contact>();
+    private static Set<Contact> contacts = new LinkedHashSet<Contact>();
 
     private static final Pattern pattern1;
     private static final Pattern pattern2;
@@ -84,31 +85,6 @@ class Contact {
         return Contact.contacts.size();
     }
 
-    /*
-    static void edit(int record, String field, String valueOfField) {
-        int recordIndexInContacts = record - 1;
-
-        int i = 0;
-        Iterator<Contact> iter = Contact.contacts.iterator();
-
-        while (iter.hasNext()) {
-            Contact contact = iter.next();
-            if (i == recordIndexInContacts) {
-                if (contact.getClass() == PersonContact.class) {
-                    PersonContact personContact = (PersonContact) contact;
-                    personContact.edit(field, valueOfField);
-                } else {
-                    OrganizationContact organizationContact = (OrganizationContact) contact;
-                    organizationContact.edit(field, valueOfField);
-                }
-                break;
-            }
-            i++;
-        }
-    }
-
-     */
-
     static void remove(int record) {
         int recordIndexInContacts = record - 1;
 
@@ -158,6 +134,14 @@ class Contact {
         return null;
     }
 
+    protected static void setContacts(Set<Contact> contacts) {
+        Contact.contacts = contacts;
+    }
+
+    protected static Set<Contact> getContacts() {
+        return Contact.contacts;
+    }
+
 
 }
 
@@ -169,12 +153,11 @@ class PersonContact extends Contact {
     private static final Pattern birthDatePattern;
 
     static {
-        birthDatePattern = Pattern.compile("([1-9]\\d){4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
+        birthDatePattern = Pattern.compile("([1-9]\\d{3})-(0[1-9]|1[0-2])-(0[1-9]|[12]\\d|3[01])");
     }
 
     enum Gender {
-        M,
-        F
+        M, F
     }
 
     PersonContact(String name) {
@@ -223,9 +206,10 @@ class PersonContact extends Contact {
     private static Gender findByName(String name)  {
         Gender output = null;
         for (Gender gender: Gender.values()) {
-            if (gender.name().equalsIgnoreCase(name))
+            if (gender.name().equalsIgnoreCase(name)) {
                 output = gender;
-            break;
+                break;
+            }
         }
         return output;
     }
@@ -372,4 +356,3 @@ class ContactStaticFactory {
     }
 
 }
-
