@@ -1,13 +1,12 @@
 package contacts;
 
-import java.io.*;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.Iterator;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 class Contact implements Serializable {
     protected String name;
@@ -16,7 +15,7 @@ class Contact implements Serializable {
     protected LocalDateTime timeEdited;
     protected static final LocalDate today;
 
-    private static Set<Contact> contacts = new LinkedHashSet<Contact>();
+    private static Set<Contact> contacts = new LinkedHashSet<>();
 
     private static final Pattern pattern1;
     private static final Pattern pattern2;
@@ -31,8 +30,7 @@ class Contact implements Serializable {
     }
 
     enum Type {
-        ORGANIZATION,
-        PERSON
+        ORGANIZATION, PERSON
     }
 
     Contact(String name) {
@@ -44,29 +42,14 @@ class Contact implements Serializable {
         Contact.contacts.add(this);
     }
 
-    // Setters and getters methods
-
     public void setName(String name) {
         this.name = name;
     }
 
     public void setNumber(String number) {
         if (correctPhoneNumberFormat(number)) this.number = number;
-        else {
-            System.out.println("Wrong number format!");
-            this.number = "";
-        }
+        else this.number = "";
     }
-
-    public String getName() {
-        return this.name;
-    }
-
-    public String getNumber() {
-        return this.number;
-    }
-
-    // Phone number specific methods
 
     protected boolean hasNumber() {
         return !this.number.isEmpty();
@@ -79,55 +62,34 @@ class Contact implements Serializable {
         return matcher1.matches() || matcher2.matches();
     }
 
-    // Count, edit, remove, list operations
-
     static int count() {
         return Contact.contacts.size();
     }
 
-    static void remove(int record) {
-        int recordIndexInContacts = record - 1;
-
-        int i = 0;
-        Iterator<Contact> iter = Contact.contacts.iterator();
-
-        while (iter.hasNext()) {
-            Contact contact = iter.next();
-            if (i == recordIndexInContacts) {
-                iter.remove();
-                break;
-            }
-            i++;
-        }
+    static void remove(Contact contact) {
+        Contact.contacts.remove(contact);
+        System.out.println("Contact deleted.\n");
     }
 
     static void list() {
 
         int i = 1;
-        Iterator<Contact> iter = Contact.contacts.iterator();
 
-        while (iter.hasNext()) {
-            Contact contact = iter.next();
-            if (contact.getClass() == PersonContact.class) {
-                System.out.println(i + ". " + contact.getName() + " " + ((PersonContact) contact).getSurName());
-            } else {
-                System.out.println(i + ". " + contact.getName());
-            }
+        for (Contact contact : Contact.contacts) {
+            System.out.println(i + ". " + contact);
             i++;
         }
+
+        System.out.println();
     }
 
     static Contact findContact(int record) {
         int recordIndexInContacts = record - 1;
 
         int i = 0;
-        Iterator<Contact> iter = Contact.contacts.iterator();
 
-        while (iter.hasNext()) {
-            Contact contact = iter.next();
-            if (i == recordIndexInContacts) {
-                return contact;
-            }
+        for (Contact contact : Contact.contacts) {
+            if (i == recordIndexInContacts) return contact;
             i++;
         }
 
@@ -142,6 +104,9 @@ class Contact implements Serializable {
         return Contact.contacts;
     }
 
+    protected void getInfo() {}
+
+    void editRecord() {}
 
 }
 
@@ -157,30 +122,20 @@ class PersonContact extends Contact {
     }
 
     enum Gender {
-        M, F
+        M, F, ENBY
     }
 
     PersonContact(String name) {
         super(name);
     }
 
-    // Getters and setters
-
     public void setSurName(String surName) {
         this.surName = surName;
     }
 
-    public String getSurName() {
-        return this.surName;
-    }
-
     public void setBirthDate(String birthDate) {
-        if (correctBirthDateFormat(birthDate) && today.isAfter(LocalDate.parse(birthDate))) {
-            this.birthDate = LocalDate.parse(birthDate);
-        } else {
-            System.out.println("Bad birth date!");
-            this.birthDate = null;
-        }
+        if (correctBirthDateFormat(birthDate) && today.isAfter(LocalDate.parse(birthDate))) this.birthDate = LocalDate.parse(birthDate);
+        else this.birthDate = null;
     }
 
     private boolean hasBirthDate() {
@@ -193,15 +148,7 @@ class PersonContact extends Contact {
         return matcher.matches();
     }
 
-    public LocalDate getBirthDate() {
-        return this.birthDate;
-    }
-
-    public void setGender(String gender) {
-        Gender value = findByName(gender);
-        if (value == null) System.out.println("Bad gender!");
-        this.gender = value;
-    }
+    public void setGender(String gender) { this.gender = findByName(gender); }
 
     private static Gender findByName(String name)  {
         Gender output = null;
@@ -218,31 +165,18 @@ class PersonContact extends Contact {
         return this.gender != null;
     }
 
-    public Gender getGender() {
-        return this.gender;
-    }
-
     protected void getInfo() {
         String birthDate;
-        if (this.hasBirthDate()) {
-            birthDate = this.birthDate.toString();
-        } else {
-            birthDate = "[no data]";
-        }
+        if (this.hasBirthDate()) birthDate = this.birthDate.toString();
+        else birthDate = "[no data]";
 
         String gender;
-        if (this.hasGender()) {
-            gender = this.gender.toString();
-        } else {
-            gender = "[no data]";
-        }
+        if (this.hasGender()) gender = this.gender.toString();
+        else gender = "[no data]";
 
         String number;
-        if (this.hasNumber()) {
-            number = this.number;
-        } else {
-            number = "[no number]";
-        }
+        if (this.hasNumber()) number = this.number;
+        else number = "[no number]";
 
         System.out.println("Name: " + this.name + "\n" +
                 "Surname: " + this.surName + "\n" +
@@ -250,9 +184,18 @@ class PersonContact extends Contact {
                 "Gender: " + gender + "\n" +
                 "Number: " + number + "\n" +
                 "Time created: " + this.timeAdded + "\n" +
-                "Time last edit: " + this.timeEdited);
+                "Time last edit: " + this.timeEdited + "\n");
     }
 
+    void editRecord() {
+        System.out.println("Select a field (name, surname, birth, gender, number):");
+        String field = Main.scanner.nextLine();
+        System.out.println("Enter " + field + ": ");
+        String valueOfField = Main.scanner.nextLine();
+        this.edit(field, valueOfField);
+        System.out.println("Saved");
+        this.getInfo();
+    }
     void edit(String field, String valueOfField) {
         switch (field) {
             case "name":
@@ -274,6 +217,10 @@ class PersonContact extends Contact {
         this.timeEdited = LocalDateTime.now();
     }
 
+    public String toString() {
+        return this.name + " " + this.surName;
+    }
+
 }
 
 class OrganizationContact extends Contact {
@@ -287,25 +234,28 @@ class OrganizationContact extends Contact {
         this.address = address;
     }
 
-    public String getAddress() {
-        return this.address;
-    }
-
     protected void getInfo() {
         System.out.println("Organization name: " + this.name + "\n" +
                 "Address: " + this.address);
 
         String number;
-        if (this.hasNumber()) {
-            number = this.number;
-        } else {
-            number = "[no number]";
-        }
+        if (this.hasNumber()) number = this.number;
+        else number = "[no number]";
 
         System.out.println("Number: " + number + "\n" +
                 "Time created: " + this.timeAdded + "\n" +
-                "Time last edit: " + this.timeEdited);
+                "Time last edit: " + this.timeEdited + "\n");
 
+    }
+
+    void editRecord() {
+        System.out.println("Select a field (name, address, number):");
+        String field = Main.scanner.nextLine();
+        System.out.println("Enter " + field + ": ");
+        String valueOfField = Main.scanner.nextLine();
+        this.edit(field, valueOfField);
+        System.out.println("Saved");
+        this.getInfo();
     }
 
     void edit(String field, String valueOfField) {
@@ -316,8 +266,15 @@ class OrganizationContact extends Contact {
             case "number":
                 this.setNumber(valueOfField);
                 break;
+            case "name":
+                this.setName(valueOfField);
+                break;
         }
         this.timeEdited = LocalDateTime.now();
+    }
+
+    public String toString() {
+        return this.name;
     }
 }
 
@@ -337,7 +294,7 @@ class ContactStaticFactory {
         }
     }
 
-    public Contact setAttributes(Contact contact, String number, String surName, String birthDate, String gender) {
+    public PersonContact setAttributes(Contact contact, String number, String surName, String birthDate, String gender) {
         PersonContact personContact = (PersonContact) contact;
         personContact.setSurName(surName);
         personContact.setBirthDate(birthDate);
@@ -347,7 +304,7 @@ class ContactStaticFactory {
         return personContact;
     }
 
-    public Contact setAttributes(Contact contact, String number, String address) {
+    public OrganizationContact setAttributes(Contact contact, String number, String address) {
         OrganizationContact organizationContact = (OrganizationContact) contact;
         organizationContact.setAddress(address);
         organizationContact.setNumber(number);
