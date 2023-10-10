@@ -49,5 +49,5 @@ Project was built using java version 8 update 381
 
 # How to Run
 
-Download the contacts repository to your machine. Create a new project in IntelliJ IDEA, then move the downloaded budget 
-repository to the src folder, then run the contacts.Main java class.
+Download the contacts repository to your machine. Create a new project in IntelliJ IDEA, then move the downloaded contacts 
+repository to the src folder and run the contacts.Main java class.
