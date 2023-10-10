@@ -8,7 +8,12 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-class Contact implements Serializable {
+interface ContactInterface {
+    void getInfo();
+    void editRecord();
+}
+
+class Contact implements Serializable, ContactInterface {
     protected String name;
     protected String number;
     protected LocalDateTime timeAdded;
@@ -104,9 +109,9 @@ class Contact implements Serializable {
         return Contact.contacts;
     }
 
-    protected void getInfo() {}
+    public void getInfo() {}
 
-    void editRecord() {}
+    public void editRecord() {}
 
 }
 
@@ -165,7 +170,7 @@ class PersonContact extends Contact {
         return this.gender != null;
     }
 
-    protected void getInfo() {
+    public void getInfo() {
         String birthDate;
         if (this.hasBirthDate()) birthDate = this.birthDate.toString();
         else birthDate = "[no data]";
@@ -187,7 +192,7 @@ class PersonContact extends Contact {
                 "Time last edit: " + this.timeEdited + "\n");
     }
 
-    void editRecord() {
+    public void editRecord() {
         System.out.println("Select a field (name, surname, birth, gender, number):");
         String field = Main.scanner.nextLine();
         System.out.println("Enter " + field + ": ");
@@ -196,7 +201,11 @@ class PersonContact extends Contact {
         System.out.println("Saved");
         this.getInfo();
     }
-    void edit(String field, String valueOfField) {
+
+    /**
+     * Helper method for editRecord
+     */
+    private void edit(String field, String valueOfField) {
         switch (field) {
             case "name":
                 this.setName(valueOfField);
@@ -234,7 +243,7 @@ class OrganizationContact extends Contact {
         this.address = address;
     }
 
-    protected void getInfo() {
+    public void getInfo() {
         System.out.println("Organization name: " + this.name + "\n" +
                 "Address: " + this.address);
 
@@ -248,7 +257,7 @@ class OrganizationContact extends Contact {
 
     }
 
-    void editRecord() {
+    public void editRecord() {
         System.out.println("Select a field (name, address, number):");
         String field = Main.scanner.nextLine();
         System.out.println("Enter " + field + ": ");
@@ -258,7 +267,10 @@ class OrganizationContact extends Contact {
         this.getInfo();
     }
 
-    void edit(String field, String valueOfField) {
+    /**
+     * Helper method for editRecord
+     */
+    private void edit(String field, String valueOfField) {
         switch (field) {
             case "address":
                 this.setAddress(valueOfField);
@@ -294,22 +306,20 @@ class ContactStaticFactory {
         }
     }
 
-    public PersonContact setAttributes(Contact contact, String number, String surName, String birthDate, String gender) {
+    public void setAttributes(Contact contact, String number, String surName, String birthDate, String gender) {
         PersonContact personContact = (PersonContact) contact;
         personContact.setSurName(surName);
         personContact.setBirthDate(birthDate);
         personContact.setGender(gender);
         personContact.setNumber(number);
 
-        return personContact;
     }
 
-    public OrganizationContact setAttributes(Contact contact, String number, String address) {
+    public void setAttributes(Contact contact, String number, String address) {
         OrganizationContact organizationContact = (OrganizationContact) contact;
         organizationContact.setAddress(address);
         organizationContact.setNumber(number);
 
-        return organizationContact;
     }
 
 }
